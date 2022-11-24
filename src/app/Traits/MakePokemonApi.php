@@ -24,10 +24,9 @@ trait MakePokemonApi
 
   public function getName($response)
   {
-    $a = json_decode($response);
-    $b = mb_convert_encoding($response, 'UTF-8', 'ASCII, JIS, UTF-8, SJIS');
-    $c = json_decode($b);
-    return $c->names[0]->name;
+    return json_decode($response)->names[0]->name;
+    // $a = collect(json_decode($response)->names);
+    // return $a->filter(fn($names) => $names->language->name === "ja-Hrkt")->get('name');
     // return array_filter($response, function($res) {
     //   return $res->species->names->language->name = "ja-Hrkt";
     // });
