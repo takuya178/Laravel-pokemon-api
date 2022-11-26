@@ -11,7 +11,8 @@ trait MakePokemonApi
     $client = new Client();
     $response = $client->request($method, $requestUrl);
     $response = json_decode($response->getBody()->getContents());
-    return $this->getName($this->getSpeciesJson($response));
+    $this->getName($this->getSpeciesJson($response));
+    return $this->getGameIndex($response);
   }
 
   public function getSpeciesJson($response)
@@ -26,9 +27,18 @@ trait MakePokemonApi
   {
     return json_decode($response)->names[0]->name;
     // $a = collect(json_decode($response)->names);
-    // return $a->filter(fn($names) => $names->language->name === "ja-Hrkt")->get('name');
+    // $b = $a->filter(fn($names) => $names->language->name === "ja-Hrkt")->pluck('name');
+    // return json_encode($b, JSON_UNESCAPED_UNICODE);
     // return array_filter($response, function($res) {
     //   return $res->species->names->language->name = "ja-Hrkt";
     // });
+  }
+
+  public function getGameIndex($response)
+  {
+    $filterGeneral = (array_filter($response->game_indices, function ($index) {
+      return $index->version->name === "red";
+    }));
+    return $filterGeneral[0]->game_index;
   }
 }
