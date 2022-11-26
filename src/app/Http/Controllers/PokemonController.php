@@ -10,6 +10,6 @@ class PokemonController extends Controller
     public function index()
     {
         $service = new MakePokemonService();
-        return $service->makeRequest('GET', 'https://pokeapi.co/api/v2/pokemon/25');
+        return $service->makeRequest('GET', 'https://pokeapi.co/api/v2/pokemon/');
     }
 }

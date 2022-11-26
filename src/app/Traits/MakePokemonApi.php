@@ -8,14 +8,22 @@ trait MakePokemonApi
 {
   public function makeRequest($method, $requestUrl)
   {
+    $pokemonList = [];
     $client = new Client();
-    $response = $client->request($method, $requestUrl);
-    $response = json_decode($response->getBody()->getContents());
-    $this->getName($this->getSpeciesJson($response));
-    $this->getGameIndex($response);
-    $this->getName($this->getTypesJson($response));
-    $this->getClassification($this->getSpeciesJson($response));
-    return $this->getWeight($response);
+    for ($i = 1; $i < 100; $i++) {
+      $response = $client->request($method, $requestUrl.strval($i));
+      $response = json_decode($response->getBody()->getContents());
+      $pokemonList[] = [
+        "図鑑番号" => $this->getGameIndex($response),
+        "名前" => $this->getName($this->getSpeciesJson($response)),
+        "タイプ" => $this->getName($this->getTypesJson($response)),
+        "分類" => $this->getClassification($this->getSpeciesJson($response)),
+        "重さ" => $this->getWeight($response),
+        "説明文" => $this->getContext($this->getSpeciesJson($response)),
+      ];
+    }
+
+    return var_dump($pokemonList);
   }
 
   private function getSpeciesJson($response)
@@ -55,5 +63,11 @@ trait MakePokemonApi
   private function getWeight($response)
   {
     return $response->weight;
+  }
+
+  private function getContext($response)
+  {
+    return collect(json_decode($response)->flavor_text_entries)
+      ->filter(fn($entry) => $entry->language->name === "ja-Hrkt")->pluck('flavor_text')[0];
   }
 }
