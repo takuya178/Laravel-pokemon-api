@@ -14,10 +14,11 @@ trait MakePokemonApi
     $this->getName($this->getSpeciesJson($response));
     $this->getGameIndex($response);
     $this->getName($this->getTypesJson($response));
-    
+    $this->getClassification($this->getSpeciesJson($response));
+    return $this->getWeight($response);
   }
 
-  public function getSpeciesJson($response)
+  private function getSpeciesJson($response)
   {
     return mb_convert_encoding(
       file_get_contents($response->species->url), 
@@ -25,7 +26,7 @@ trait MakePokemonApi
       );
   }
 
-  public function getTypesJson($response)
+  private function getTypesJson($response)
   {
     return mb_convert_encoding(
       file_get_contents($response->types[0]->type->url), 
@@ -33,18 +34,26 @@ trait MakePokemonApi
       );
   }
 
-  public function getName($response)
+  private function getName($response)
   {
-    $result = collect(json_decode($response)->names)
-      ->filter(fn($name) => $name->language->name === "ja-Hrkt")->pluck('name');
-    return $result[0];
+    return collect(json_decode($response)->names)
+      ->filter(fn($name) => $name->language->name === "ja-Hrkt")->pluck('name')[0];
   }
 
-  public function getGameIndex($response)
+  private function getGameIndex($response)
   {
-    $result = collect($response->game_indices)
-      ->filter(fn($index) => $index->version->name === "red")->pluck('game_index');
-    return $result[0];
+    return collect($response->game_indices)
+      ->filter(fn($index) => $index->version->name === "red")->pluck('game_index')[0];
   }
 
+  private function getClassification($response)
+  {
+    return collect(json_decode($response)->genera)
+    ->filter(fn($general) => $general->language->name === "ja-Hrkt")->pluck('genus')[0];
+  }
+
+  private function getWeight($response)
+  {
+    return $response->weight;
+  }
 }
